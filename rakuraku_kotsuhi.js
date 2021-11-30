@@ -28,6 +28,7 @@ console.log(targetDate);
   const page = await browser.newPage();
 
   // ログイン
+  // ログイン画面のURL(セキュリティの都合上消しました。おそらく皆さん同じURLかと思います。) 
   await page.goto('URL');
   await page.type('input[name="loginId"]', 'ログインID'); // ログインID
   await page.type('input[name="password"]', 'パスワード'); // パスワード
@@ -36,6 +37,7 @@ console.log(targetDate);
   console.log('ログインが完了しました');
 
   // 交通費精算
+  // 交通費精算のURL(セキュリティの都合上消しました。おそらく皆さん同じURLかと思います。) ~/sapKotsuhiDenpyo/initializeView の部分
   await page.goto('URL');
 
   for (let i = 0; i < targetDate.length; i++) {
