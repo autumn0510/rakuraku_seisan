@@ -1,0 +1,106 @@
+#!/bin/bash
+
+trap deleteTmp INT
+deleteTmp() {
+  rm -fr tmp
+  exit
+}
+
+echo "Welocome to 楽楽楽精算"
+
+askDate() {
+  local target=$1
+  echo "精算する${target}を入力してください（数値のみ）"
+  read -p ">${target} " value
+
+  if [ -z $value ]; then
+    askDate $target
+  elif isNumeric $value; then
+    mkdir -p tmp
+    echo $value >> tmp/arguments
+  else
+    askDate $target
+  fi 
+}
+
+askDay() {
+  local dayOfWeekArray=("日" "月" "火" "水" "木" "金" "土")
+  echo "精算する曜日を入力してください"
+  read -p ">曜日(ex: 月水金) " value
+
+  if [ -z $value ]; then
+    askDay
+    return 0
+  fi
+
+  local formatedValueInRegexp=`echo $value | grep -o . | tr '\n' '|' | sed -e 's/|$//'`
+  local targetDay=`echo ${dayOfWeekArray[@]} | xargs -n 1 | grep -E $formatedValueInRegexp`
+
+  if [[ -z $targetDay ]]; then
+    echo "入力された値に[日月火水木金土]がありません"
+    askDay
+  else
+    mkdir -p tmp
+    echo $targetDay | tr -d ' ' >> tmp/arguments
+  fi
+}
+
+askExcludeDate() {
+  echo "除外したい日付はありますか？"
+  read -p ">(y/n) " answer
+  case $answer in
+    "y")
+      checkExcludeDate;;
+    "n")
+      echo "sorry";;
+    *)
+      askExcludeDate;;
+  esac
+}
+
+checkExcludeDate() {
+  echo "除外する日にちを入力してください"
+  read -p ">除外日(ex: 3,10,26) " value
+  if [[ -z $value ]]; then
+    checkExcludeDate
+    return 0
+  fi
+
+  local formatedValue=`echo $value | sed -e "s/ //g" -e 's/,$//'`
+  if isNumeric `echo $formatedValue | sed -e "s/,//g"`; then
+    mkdir -p tmp
+    echo $formatedValue >> tmp/arguments
+  else
+    checkExcludeDate
+  fi
+}
+
+isNumeric() {
+  expr $1 + 1 >/dev/null 2>&1
+  if [ $? -eq 2 ]; then
+    echo "数値を入力してください"
+    return 1
+  fi
+  return 0
+}
+
+generateArguments() {
+  askDate "年"
+  askDate "月"
+  askDay
+  askExcludeDate
+}
+
+generateArguments
+arguments=(`cat tmp/arguments`)
+echo "${arguments[0]}/${arguments[1]} ${arguments[2]} 曜日分の明細を作成します"
+if [ ! -z ${arguments[3]} ]; then
+  echo "${arguments[3]} 日は除外します"
+else
+  echo "除外する日付はありません"
+fi
+
+docker compose run --rm pptr node rakuraku_kotsuhi.js ${arguments[@]}
+
+wait
+rm -fr tmp
