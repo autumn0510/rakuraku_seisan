@@ -56,7 +56,14 @@ console.log(targetDate);
     page.click('button.insertMeisai');
     await page.waitForTimeout(1000);
 
-    console.log(`${targetDate[i]} の交通費明細を作成しました`);
+    const error = await page.$('.banner--is-error')
+    if (error) {
+      console.log(`エラー: ${targetDate[i]} の交通費明細の作成に失敗しました`);
+      const messages = await error.$$eval('.banner__message', nodes => nodes.map(node => node.textContent));
+      console.log(messages);
+    } else {
+      console.log(`${targetDate[i]} の交通費明細を作成しました`);
+    }
   }
 
   // 一時保存
