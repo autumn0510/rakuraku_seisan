@@ -6,10 +6,9 @@
     "startPoint": "〇〇駅",
     "arrivalPoint": "〇〇駅",
     "kingaku": "0000",
-    "ohukuKbn": "片道は'0', 往復は'1'", 
+    "ohukuKbn": "片道は'0', 往復は'1'",
     "meisaiDestination": "Headquarters（東京本社）",
     "kotsukikan": "電車（国内）は'74', バスは'78'",
     "meisaiFreeText1": "目的（明細）"
   }
 }
-
