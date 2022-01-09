@@ -3,7 +3,7 @@
 ## Usage
 ```sh
 cd rakuraku_seisan
-touch config.json  # loginID, password などを記述
+cp -i config.sample.json config.json  # loginID, password などを記述
 bin/rakuraku_start
 ```
 
