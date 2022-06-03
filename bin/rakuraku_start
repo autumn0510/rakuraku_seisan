@@ -45,33 +45,39 @@ askDay() {
   fi
 }
 
-askExcludeDate() {
-  echo "除外したい日付はありますか？"
+askDateOptions() {
+  local excludeOrAdd=$1
+  echo "${excludeOrAdd}したい日付はありますか？"
   read -p ">(y/n) " answer
   case $answer in
     "y")
-      checkExcludeDate;;
+      checkDateOptions ${excludeOrAdd};;
     "n")
+      mkdir -p tmp
+      echo "null" >> tmp/arguments
       echo "sorry";;
     *)
-      askExcludeDate;;
+      askDateOptions ${excludeOrAdd};;
   esac
 }
 
-checkExcludeDate() {
-  echo "除外する日にちを入力してください"
-  read -p ">除外日(ex: 3,10,26) " value
+checkDateOptions() {
+  local excludeOrAdd=$1
+  echo "${excludeOrAdd}する日にちを入力してください"
+  read -p ">${excludeOrAdd}日(ex: 3,10,26) " value
   if [[ -z $value ]]; then
-    checkExcludeDate
+    checkDateOptions ${excludeOrAdd}
     return 0
   fi
 
   local formatedValue=`echo $value | sed -e "s/ //g" -e 's/,$//'`
+  echo ${formatedValue}
   if isNumeric `echo $formatedValue | sed -e "s/,//g"`; then
+    echo ${formatedValue}
     mkdir -p tmp
     echo $formatedValue >> tmp/arguments
   else
-    checkExcludeDate
+    checkDateOptions ${excludeOrAdd}
   fi
 }
 
@@ -84,21 +90,29 @@ isNumeric() {
   return 0
 }
 
+dateOptionChecker() {
+  local dateOption=$1
+  local date=$2
+  if [ ${date} == "null" ]; then
+    echo "${dateOption}する日付はありません"
+  else
+    echo "${dateOption}する日付は ${date} 日です"
+  fi
+}
+
 generateArguments() {
   askDate "年"
   askDate "月"
   askDay
-  askExcludeDate
+  askDateOptions "除外"
+  askDateOptions "追加"
 }
 
 generateArguments
 arguments=(`cat tmp/arguments`)
-echo "${arguments[0]}/${arguments[1]} ${arguments[2]} 曜日分の明細を作成します"
-if [ ! -z ${arguments[3]} ]; then
-  echo "${arguments[3]} 日は除外します"
-else
-  echo "除外する日付はありません"
-fi
+echo "${arguments[0]}/${arguments[1]} ${arguments[2]}曜日分の明細を作成します"
+dateOptionChecker "除外" ${arguments[3]}
+dateOptionChecker "追加" ${arguments[4]}
 
 docker compose run --rm pptr node rakuraku_kotsuhi.js ${arguments[@]}
 

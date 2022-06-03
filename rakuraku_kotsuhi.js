@@ -5,16 +5,20 @@ const year = Number(process.argv[2]);
 const month = Number(process.argv[3]);
 const day = String(process.argv[4]);
 const excludeDate = String(process.argv[5]).split(',');
+const addDate = String(process.argv[6]).split(',').filter(date => date !== 'null');
 
 const dayOfWeekArray = [ "日", "月", "火", "水", "木", "金", "土" ];
 const endOfMonth = new Date(year, month, 0).getDate();
-const targetDate =
+let targetDate =
   Array
     .from(Array(endOfMonth).keys(), x => x + 1)
     .filter(date => excludeDate.indexOf(String(date)) === -1)
     .filter(date => day.includes(dayOfWeekArray[new Date(year, month - 1, date).getDay()]))
+    .concat(addDate)
+    .sort((a, b) => a - b)
     .map(date => `${year}/${month}/${date}`);
 
+targetDate = Array.from(new Set(targetDate));
 console.log(targetDate);
 
 (async () => {
