@@ -8,7 +8,7 @@
     "kingaku": "0000",
     "ohukuKbn": "片道は'0', 往復は'1'",
     "meisaiDestination": "Headquarters（東京本社）",
-    "kotsukikan": "電車（国内）は'74', バスは'78'(人によって異なる可能性あり)",
+    "kotsukikan": "'74'(交通費精算>明細追加>交通機関等>セレクトボックスの数値を参照)",
     "meisaiFreeText1": "目的（明細）"
   }
 }
