@@ -28,10 +28,18 @@ console.log(targetDate);
   await page.type('input[name="password"]', config.password);
   page.click('#submitBtn');
   await page.waitForTimeout(2000);
-  console.log('ログインが完了しました');
 
   // 交通費精算
-  await page.goto(`https://rspop.rakurakuseisan.jp/${config.companyId}/sapKotsuhiDenpyo/initializeView`);
+  const kotsuhiSeisanUrl =
+    `https://rspop.rakurakuseisan.jp/${config.companyId}/sapKotsuhiDenpyo/initializeView`
+  const response = await page.goto(kotsuhiSeisanUrl);
+  if (response._url !== kotsuhiSeisanUrl) {
+    console.log('ログインに失敗しました');
+    await browser.close();
+    return;
+  }
+  console.log('ログインが完了しました');
+
   for (let i = 0; i < targetDate.length; i++) {
     page.click('button.meisai-insert-button--direct-add');
     await page.waitForTimeout(1500);
@@ -45,11 +53,11 @@ console.log(targetDate);
     // 金額
     await page.type('input[name="kingaku"]', config.kotsuhiInfo.kingaku);
     // 往復/片道
-    await page.select('select[name="ohukuKbn"]', config.kotsuhiInfo.ohukuKbn); // 0 = 片道, 1 = 往復
+    await page.select('select[name="ohukuKbn"]', config.kotsuhiInfo.ohukuKbn);
     // 目的地
     await page.type('input[name="meisaiDestination"]', config.kotsuhiInfo.meisaiDestination);
     // 交通機関
-    await page.select('select[name="kotsukikan"]', config.kotsuhiInfo.kotsukikan); // 74 = 電車（国内）, 78 = バス（国内）
+    await page.select('select[name="kotsukikan"]', config.kotsuhiInfo.kotsukikan);
     // 目的（詳細）
     await page.type('input[name="meisaiFreeText1"]', config.kotsuhiInfo.meisaiFreeText1);
 
